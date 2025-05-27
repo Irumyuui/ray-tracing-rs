@@ -3,5 +3,5 @@ members = ["crates/core", "crates/bin"]
 resolver = "3"
 
 [workspace.dependencies]
-core = {path = "crates/core"}
 indicatif = "0.17.11"
+rt-core = {path = "crates/core"}

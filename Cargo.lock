@@ -6,8 +6,8 @@ version = 4
 name = "bin"
 version = "0.1.0"
 dependencies = [
- "core",
  "indicatif",
+ "rt-core",
 ]
 
 [[package]]
@@ -34,10 +34,6 @@ dependencies = [
  "unicode-width",
  "windows-sys",
 ]
-
-[[package]]
-name = "core"
-version = "0.1.0"
 
 [[package]]
 name = "encode_unicode"
@@ -115,6 +111,10 @@ checksum = "1885c039570dc00dcb4ff087a89e185fd56bae234ddc7f056a945bf36467248d"
 dependencies = [
  "proc-macro2",
 ]
+
+[[package]]
+name = "rt-core"
+version = "0.1.0"
 
 [[package]]
 name = "syn"
