@@ -1,3 +1,7 @@
 [workspace]
-members = ["crates/ray-tracing-core", "crates/bin"]
+members = ["crates/core", "crates/bin"]
 resolver = "3"
+
+[workspace.dependencies]
+core = {path = "crates/core"}
+indicatif = "0.17.11"
