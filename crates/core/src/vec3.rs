@@ -97,6 +97,30 @@ impl ops::Sub<Self> for Vector3 {
     }
 }
 
+impl ops::Sub<Vector3> for &Vector3 {
+    type Output = Vector3;
+
+    fn sub(self, rhs: Vector3) -> Self::Output {
+        Vector3::new(self.x() - rhs.x(), self.y() - rhs.y(), self.z() - rhs.z())
+    }
+}
+
+impl ops::Sub<&Vector3> for Vector3 {
+    type Output = Vector3;
+
+    fn sub(self, rhs: &Vector3) -> Self::Output {
+        Vector3::new(self.x() - rhs.x(), self.y() - rhs.y(), self.z() - rhs.z())
+    }
+}
+
+impl ops::Sub<&Vector3> for &Vector3 {
+    type Output = Vector3;
+
+    fn sub(self, rhs: &Vector3) -> Self::Output {
+        Vector3::new(self.x() - rhs.x(), self.y() - rhs.y(), self.z() - rhs.z())
+    }
+}
+
 impl ops::SubAssign<Self> for Vector3 {
     fn sub_assign(&mut self, rhs: Self) {
         *self = *self - rhs;
