@@ -16,16 +16,16 @@ impl Vector3 {
         Self { e: [x, y, z] }
     }
 
-    pub fn x(&self) -> f32 {
-        self.e[0]
+    pub fn x(&self) -> &f32 {
+        &self.e[0]
     }
 
-    pub fn y(&self) -> f32 {
-        self.e[1]
+    pub fn y(&self) -> &f32 {
+        &self.e[1]
     }
 
-    pub fn z(&self) -> f32 {
-        self.e[2]
+    pub fn z(&self) -> &f32 {
+        &self.e[2]
     }
 
     pub fn length_squared(&self) -> f32 {
