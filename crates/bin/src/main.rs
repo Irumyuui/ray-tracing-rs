@@ -2,7 +2,7 @@ use rt_core::{
     ray::Ray,
     vec3::{Color, Point3, Vector3, Wrapper},
 };
-use std::error::Error;
+use std::{error::Error, io::Write};
 
 use indicatif::{ProgressBar, ProgressStyle};
 
@@ -39,10 +39,19 @@ fn main() -> Result<(), Box<dyn Error>> {
             .progress_chars("#>-"),
     );
 
+    let image = std::fs::OpenOptions::new()
+        .read(true)
+        .write(true)
+        .create(true)
+        .truncate(true)
+        .open("image.ppm")?;
+    let mut writer = std::io::BufWriter::new(image);
+
     // Render
-    println!("P3");
-    println!("{} {}", image_width, image_height);
-    println!("255");
+    writeln!(writer, "P3")?;
+    writeln!(writer, "{} {}", image_width, image_height)?;
+    writeln!(writer, "255")?;
+
     for j in 0..image_height {
         for i in 0..image_width {
             let pixel_center =
@@ -51,11 +60,15 @@ fn main() -> Result<(), Box<dyn Error>> {
             let r = Ray::new(camera_center, ray_direction);
 
             let pixel_color = ray_color(&r);
-            println!("{}", Wrapper::new(&pixel_color));
+            writeln!(writer, "{}", Wrapper::new(&pixel_color))?;
         }
         pb.inc(1);
     }
-    pb.finish_with_message("Image done");
+    writer.flush()?;
+    drop(writer);
+
+    pb.finish_and_clear();
+    println!("Image rendered to 'image.ppm'");
 
     Ok(())
 }
