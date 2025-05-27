@@ -1,0 +1,3 @@
+[workspace]
+members = ["crates/ray-tracing-core", "crates/bin"]
+resolver = "3"
