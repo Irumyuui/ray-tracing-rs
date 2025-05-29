@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::{
     ray::Ray,
     vec3::{Point3, Vector3},
@@ -25,4 +27,35 @@ impl HitRecord {
 
 pub trait Hittable {
     fn hit(&self, r: &Ray, ray_tmin: f32, ray_tmax: f32) -> Option<HitRecord>;
+}
+
+#[derive(Default, Clone)]
+pub struct HittableList {
+    pub objects: Vec<Arc<dyn Hittable>>,
+}
+
+impl HittableList {
+    pub fn new(objects: Vec<Arc<dyn Hittable>>) -> Self {
+        Self { objects }
+    }
+
+    pub fn add(&mut self, object: Arc<dyn Hittable>) {
+        self.objects.push(object);
+    }
+}
+
+impl Hittable for HittableList {
+    fn hit(&self, r: &Ray, ray_tmin: f32, ray_tmax: f32) -> Option<HitRecord> {
+        let mut closet_so_far = ray_tmax;
+        let mut res = None;
+
+        for obj in self.objects.iter() {
+            if let Some(record) = obj.hit(r, ray_tmin, closet_so_far) {
+                closet_so_far = record.t;
+                res.replace(record);
+            }
+        }
+
+        res
+    }
 }
