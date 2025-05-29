@@ -1,8 +1,10 @@
 use rt_core::{
+    hit::{Hittable, HittableList},
     ray::Ray,
+    sphere::Sphere,
     vec3::{Color, Point3, Vector3, Wrapper},
 };
-use std::{error::Error, io::Write};
+use std::{error::Error, io::Write, sync::Arc};
 
 use indicatif::{ProgressBar, ProgressStyle};
 
@@ -14,6 +16,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         n if n < 1 => 1,
         n => n,
     };
+
+    // World
+    let mut world = HittableList::default();
+    world.add(Arc::new(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5)));
+    world.add(Arc::new(Sphere::new(Point3::new(0.0, -100.5, -1.0), 100.0)));
 
     // Camera
     // Right-handed coordinates.
@@ -59,7 +66,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             let ray_direction = pixel_center - camera_center;
             let r = Ray::new(camera_center, ray_direction);
 
-            let pixel_color = ray_color(&r);
+            let pixel_color = ray_color(&r, &world);
             writeln!(writer, "{}", Wrapper::new(&pixel_color))?;
         }
         pb.inc(1);
@@ -73,29 +80,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn ray_color(r: &Ray) -> Color {
-    let t = hit_sphere(&Point3::new(0.0, 0.0, -1.0), 0.5, r);
-    if t > 0.0 {
-        let n = (r.at(t) - Vector3::new(0.0, 0.0, -1.0)).unit_vector();
-        return Color::new(1.0 + n.x(), 1.0 + n.y(), 1.0 + n.z()) * 0.5;
+fn ray_color(r: &Ray, world: &HittableList) -> Color {
+    if let Some(rec) = world.hit(r, 0.0, f32::INFINITY) {
+        return 0.5 * (rec.normal + Color::new(1.0, 1.0, 1.0));
     }
 
     let unit_direction = r.direction().unit_vector();
     let a = 0.5 * (unit_direction.y() + 1.0);
     (1.0 - a) * Color::new(1.0, 1.0, 1.0) + a * Color::new(0.5, 0.7, 1.0)
-}
-
-fn hit_sphere(center: &Point3, radius: f32, r: &Ray) -> f32 {
-    let oc = center - r.origin();
-
-    let a = r.direction().length_squared();
-    let h = r.direction().dot(&oc);
-    let c = oc.dot(&oc) - radius * radius;
-
-    let discriminant = h * h - a * c;
-    if discriminant < 0.0 {
-        -1.0
-    } else {
-        (h - discriminant.sqrt()) / a
-    }
 }
