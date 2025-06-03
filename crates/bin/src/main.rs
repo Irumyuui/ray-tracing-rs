@@ -1,5 +1,6 @@
 use rt_core::{
     hit::{Hittable, HittableList},
+    interval::Interval,
     ray::Ray,
     sphere::Sphere,
     vec3::{Color, Point3, Vector3, Wrapper},
@@ -81,7 +82,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 fn ray_color(r: &Ray, world: &HittableList) -> Color {
-    if let Some(rec) = world.hit(r, 0.0, f32::INFINITY) {
+    if let Some(rec) = world.hit(r, &Interval::new(0.0, f32::INFINITY)) {
         return 0.5 * (rec.normal + Color::new(1.0, 1.0, 1.0));
     }
 
