@@ -22,6 +22,9 @@ pub struct Camera {
 
     pixel_delta_u: Point3,
     pixel_delta_v: Point3,
+
+    pub samples_per_pixel: i32,
+    pixel_samples_scale: f32,
 }
 
 impl Camera {
@@ -47,14 +50,16 @@ impl Camera {
 
         for j in 0..self.image_height {
             for i in 0..self.image_width {
-                let pixel_center = self.pixel00_loc
-                    + (i as f32 * self.pixel_delta_u)
-                    + (j as f32 * self.pixel_delta_v);
-                let ray_direction = pixel_center - self.center;
-                let r = Ray::new(self.center, ray_direction);
-
-                let pixel_color = Self::ray_color(&r, world);
-                writeln!(writer, "{}", Wrapper::new(&pixel_color))?;
+                let mut pixel_color = Color::default();
+                for _ in 0..self.samples_per_pixel {
+                    let r = self.get_ray(i, j);
+                    pixel_color += Self::ray_color(&r, world)
+                }
+                writeln!(
+                    writer,
+                    "{}",
+                    Wrapper::new(&(pixel_color * self.pixel_samples_scale))
+                )?;
             }
             pb.inc(1);
         }
@@ -76,11 +81,32 @@ impl Camera {
         let a = 0.5 * (unit_direction.y() + 1.0);
         (1.0 - a) * Color::new(1.0, 1.0, 1.0) + a * Color::new(0.5, 0.7, 1.0)
     }
+
+    fn get_ray(&self, i: i32, j: i32) -> Ray {
+        let offset = sample_square();
+        let pixel_sample = self.pixel00_loc
+            + (i as f32 + offset.x()) * self.pixel_delta_u
+            + (j as f32 + offset.y()) * self.pixel_delta_v;
+
+        let ray_origin = self.center;
+        let ray_direction = pixel_sample - ray_origin;
+
+        Ray::new(ray_origin, ray_direction)
+    }
+}
+
+fn sample_square() -> Vector3 {
+    Vector3::new(
+        rand::random_range(-0.5..=0.5),
+        rand::random_range(-0.5..=0.5),
+        0.0,
+    )
 }
 
 pub struct CameraBuilder {
     pub aspect_ratio: f32,
     pub image_width: i32,
+    pub samples_per_pixel: i32,
 }
 
 impl Default for CameraBuilder {
@@ -88,6 +114,7 @@ impl Default for CameraBuilder {
         Self {
             aspect_ratio: 16.0 / 9.0,
             image_width: 400,
+            samples_per_pixel: 10,
         }
     }
 }
@@ -104,6 +131,8 @@ impl CameraBuilder {
             n if n < 1 => 1,
             n => n,
         };
+
+        let pixel_samples_scale = 1.0 / self.samples_per_pixel as f32;
 
         let center = Point3::new(0.0, 0.0, 0.0);
 
@@ -129,6 +158,9 @@ impl CameraBuilder {
             pixel00_loc,
             pixel_delta_u,
             pixel_delta_v,
+
+            samples_per_pixel: self.samples_per_pixel,
+            pixel_samples_scale,
         }
     }
 }

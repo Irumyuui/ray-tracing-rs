@@ -1,5 +1,7 @@
 use core::{fmt, ops};
 
+use crate::interval::Interval;
+
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Vector3 {
     e: [f32; 3],
@@ -178,10 +180,15 @@ impl<T> Wrapper<T> {
 
 impl fmt::Display for Wrapper<&Color> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let r = (self.0.x() * 255.99) as i32;
-        let g = (self.0.y() * 255.99) as i32;
-        let b = (self.0.z() * 255.99) as i32;
+        let r = self.0.x();
+        let g = self.0.y();
+        let b = self.0.z();
 
-        write!(f, "{} {} {}", r, g, b)
+        const INTENSITY: Interval = Interval::new(0.000, 0.999);
+        let rbytes = (256.0 * INTENSITY.clamp(*r)) as i32;
+        let gbytes = (256.0 * INTENSITY.clamp(*g)) as i32;
+        let bbytes = (256.0 * INTENSITY.clamp(*b)) as i32;
+
+        write!(f, "{} {} {}", rbytes, gbytes, bbytes)
     }
 }

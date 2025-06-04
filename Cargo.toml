@@ -5,4 +5,5 @@ resolver = "3"
 [workspace.dependencies]
 anyhow = "1.0.98"
 indicatif = "0.17.11"
+rand = "0.9.1"
 rt-core = {path = "crates/core"}

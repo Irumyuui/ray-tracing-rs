@@ -10,6 +10,7 @@ fn main() -> anyhow::Result<()> {
     CameraBuilder {
         aspect_ratio: 16.0 / 9.0,
         image_width: 400,
+        samples_per_pixel: 100,
     }
     .build()
     .render(&world)?;
