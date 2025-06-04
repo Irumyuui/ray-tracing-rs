@@ -38,6 +38,22 @@ impl Vector3 {
         self.length_squared().sqrt()
     }
 
+    pub fn random() -> Self {
+        Self::new(
+            rand::random_range(0.0..=1.0),
+            rand::random_range(0.0..=1.0),
+            rand::random_range(0.0..=1.0),
+        )
+    }
+
+    pub fn random_in_range(min: f32, max: f32) -> Self {
+        Self::new(
+            rand::random_range(min..=max),
+            rand::random_range(min..=max),
+            rand::random_range(min..=max),
+        )
+    }
+
     pub fn dot(&self, other: &Self) -> f32 {
         self.x() * other.x() + self.y() * other.y() + self.z() * other.z()
     }
@@ -52,6 +68,27 @@ impl Vector3 {
 
     pub fn unit_vector(&self) -> Self {
         *self / self.length()
+    }
+
+    pub fn random_unit_vector() -> Self {
+        loop {
+            let p = Self::random_in_range(-1.0, 1.0);
+            let lensq = p.length_squared();
+
+            // Maybe black hole the zero vector?
+            if 1e-10 < lensq && lensq <= 1.0 {
+                return p / lensq.sqrt();
+            }
+        }
+    }
+
+    pub fn random_on_hemisphere(normal: &Self) -> Self {
+        let on_unit_sphere = Self::random_unit_vector();
+        if on_unit_sphere.dot(normal) > 0.0 {
+            on_unit_sphere
+        } else {
+            -on_unit_sphere
+        }
     }
 }
 
