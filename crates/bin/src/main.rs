@@ -3,7 +3,7 @@ use std::sync::Arc;
 use rt_core::{
     camera::CameraBuilder,
     hit::HittableList,
-    material::{Lambertian, Metal},
+    material::{Dielectric, Lambertian, Metal},
     sphere::Sphere,
     vec3::{Color, Point3},
 };
@@ -13,7 +13,8 @@ fn main() -> anyhow::Result<()> {
 
     let material_ground = Arc::new(Lambertian::new(Color::new(0.8, 0.8, 0.0)));
     let material_center = Arc::new(Lambertian::new(Color::new(0.1, 0.2, 0.5)));
-    let material_left = Arc::new(Metal::new(Color::new(0.8, 0.8, 0.8), 0.3));
+    let material_left = Arc::new(Dielectric::new(1.00));
+    let material_bubble = Arc::new(Dielectric::new(1.00 / 1.50));
     let material_right = Arc::new(Metal::new(Color::new(0.8, 0.6, 0.2), 1.0));
 
     world.add(Arc::new(Sphere::new(
@@ -32,6 +33,11 @@ fn main() -> anyhow::Result<()> {
         material_left,
     )));
     world.add(Arc::new(Sphere::new(
+        Point3::new(-1.0, 0.0, -1.0),
+        0.45,
+        material_bubble,
+    )));
+    world.add(Arc::new(Sphere::new(
         Point3::new(1.0, 0.0, -1.0),
         0.5,
         material_right,
@@ -39,7 +45,7 @@ fn main() -> anyhow::Result<()> {
 
     CameraBuilder {
         aspect_ratio: 16.0 / 9.0,
-        image_width: 400,
+        image_width: 1920,
         samples_per_pixel: 100,
         max_depth: 50,
     }

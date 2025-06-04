@@ -1,4 +1,5 @@
 use core::{fmt, ops};
+use std::ops::Neg;
 
 use crate::{interval::Interval, utils::linear_to_gamma};
 
@@ -107,6 +108,13 @@ impl Vector3 {
     pub fn reflect(&self, n: &Self) -> Self {
         self - 2.0 * self.dot(n) * n
     }
+
+    pub fn refract(&self, n: &Vector3, etai_over_etat: f32) -> Self {
+        let cos_theta = self.neg().dot(n).min(1.0);
+        let r_out_perp = etai_over_etat * (self + cos_theta * n);
+        let r_out_parallel = (1.0 - r_out_perp.length()).abs().sqrt().neg() * n;
+        r_out_perp + r_out_parallel
+    }
 }
 
 impl ops::Neg for Vector3 {
@@ -114,6 +122,14 @@ impl ops::Neg for Vector3 {
 
     fn neg(self) -> Self::Output {
         Self::new(-self.x(), -self.y(), -self.z())
+    }
+}
+
+impl ops::Neg for &Vector3 {
+    type Output = Vector3;
+
+    fn neg(self) -> Self::Output {
+        Vector3::new(-self.x(), -self.y(), -self.z())
     }
 }
 
@@ -136,6 +152,14 @@ impl ops::Add<Self> for Vector3 {
 
     fn add(self, rhs: Self) -> Self::Output {
         Self::new(self.x() + rhs.x(), self.y() + rhs.y(), self.z() + rhs.z())
+    }
+}
+
+impl ops::Add<Vector3> for &Vector3 {
+    type Output = Vector3;
+
+    fn add(self, rhs: Vector3) -> Self::Output {
+        Vector3::new(self.x() + rhs.x(), self.y() + rhs.y(), self.z() + rhs.z())
     }
 }
 

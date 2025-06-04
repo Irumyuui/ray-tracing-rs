@@ -31,7 +31,7 @@ pub struct Camera {
 
 impl Camera {
     pub fn render<H: Hittable>(&mut self, world: &H) -> anyhow::Result<()> {
-        let pb = ProgressBar::new(self.image_height as u64);
+        let pb = ProgressBar::new(self.image_height as u64 * self.image_width as u64);
         pb.set_style(
             ProgressStyle::default_bar()
                 .template("{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos}/{len}")?
@@ -62,8 +62,8 @@ impl Camera {
                     "{}",
                     Wrapper::new(&(pixel_color * self.pixel_samples_scale))
                 )?;
+                pb.inc(1);
             }
-            pb.inc(1);
         }
         writer.flush()?;
         drop(writer);
