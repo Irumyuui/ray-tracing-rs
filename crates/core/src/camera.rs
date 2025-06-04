@@ -80,7 +80,7 @@ impl Camera {
         }
 
         if let Some(rec) = world.hit(r, &Interval::new(0.001, f32::INFINITY)) {
-            let direction = Vector3::random_on_hemisphere(&rec.normal);
+            let direction = rec.normal + Vector3::random_unit_vector();
             return 0.5 * Self::ray_color(&Ray::new(rec.p, direction), world, depth - 1);
         }
 
