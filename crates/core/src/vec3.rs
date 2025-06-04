@@ -1,6 +1,6 @@
 use core::{fmt, ops};
 
-use crate::interval::Interval;
+use crate::{interval::Interval, utils::linear_to_gamma};
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Vector3 {
@@ -221,10 +221,14 @@ impl fmt::Display for Wrapper<&Color> {
         let g = self.0.y();
         let b = self.0.z();
 
+        let r = linear_to_gamma(*r);
+        let g = linear_to_gamma(*g);
+        let b = linear_to_gamma(*b);
+
         const INTENSITY: Interval = Interval::new(0.000, 0.999);
-        let rbytes = (256.0 * INTENSITY.clamp(*r)) as i32;
-        let gbytes = (256.0 * INTENSITY.clamp(*g)) as i32;
-        let bbytes = (256.0 * INTENSITY.clamp(*b)) as i32;
+        let rbytes = (256.0 * INTENSITY.clamp(r)) as i32;
+        let gbytes = (256.0 * INTENSITY.clamp(g)) as i32;
+        let bbytes = (256.0 * INTENSITY.clamp(b)) as i32;
 
         write!(f, "{} {} {}", rbytes, gbytes, bbytes)
     }
