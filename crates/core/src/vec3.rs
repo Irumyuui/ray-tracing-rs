@@ -14,26 +14,32 @@ impl Default for Vector3 {
 }
 
 impl Vector3 {
-    pub fn new(x: f32, y: f32, z: f32) -> Self {
+    #[inline(always)]
+    pub const fn new(x: f32, y: f32, z: f32) -> Self {
         Self { e: [x, y, z] }
     }
 
-    pub fn x(&self) -> &f32 {
+    #[inline(always)]
+    pub const fn x(&self) -> &f32 {
         &self.e[0]
     }
 
-    pub fn y(&self) -> &f32 {
+    #[inline(always)]
+    pub const fn y(&self) -> &f32 {
         &self.e[1]
     }
 
-    pub fn z(&self) -> &f32 {
+    #[inline(always)]
+    pub const fn z(&self) -> &f32 {
         &self.e[2]
     }
 
+    #[inline(always)]
     pub fn length_squared(&self) -> f32 {
         self.x() * self.x() + self.y() * self.y() + self.z() * self.z()
     }
 
+    #[inline(always)]
     pub fn length(&self) -> f32 {
         self.length_squared().sqrt()
     }
@@ -89,6 +95,17 @@ impl Vector3 {
         } else {
             -on_unit_sphere
         }
+    }
+
+    #[inline(always)]
+    pub const fn near_zero(&self) -> bool {
+        const S: f32 = 1e-8;
+        self.x().abs() < S && self.y().abs() < S && self.z().abs() < S
+    }
+
+    #[inline(always)]
+    pub fn reflect(&self, n: &Self) -> Self {
+        self - 2.0 * self.dot(n) * n
     }
 }
 
@@ -174,11 +191,51 @@ impl ops::Mul<f32> for Vector3 {
     }
 }
 
+impl ops::Mul<&Vector3> for f32 {
+    type Output = Vector3;
+
+    fn mul(self, rhs: &Vector3) -> Self::Output {
+        Vector3::new(self * rhs.x(), self * rhs.y(), self * rhs.z())
+    }
+}
+
 impl ops::Mul<Vector3> for f32 {
     type Output = Vector3;
 
     fn mul(self, rhs: Vector3) -> Self::Output {
         Vector3::new(self * rhs.x(), self * rhs.y(), self * rhs.z())
+    }
+}
+
+impl ops::Mul<Vector3> for Vector3 {
+    type Output = Vector3;
+
+    fn mul(self, rhs: Vector3) -> Self::Output {
+        Vector3::new(self.x() * rhs.x(), self.y() * rhs.y(), self.z() * rhs.z())
+    }
+}
+
+impl ops::Mul<&Vector3> for &Vector3 {
+    type Output = Vector3;
+
+    fn mul(self, rhs: &Vector3) -> Self::Output {
+        Vector3::new(self.x() * rhs.x(), self.y() * rhs.y(), self.z() * rhs.z())
+    }
+}
+
+impl ops::Mul<&Vector3> for Vector3 {
+    type Output = Vector3;
+
+    fn mul(self, rhs: &Vector3) -> Self::Output {
+        Vector3::new(self.x() * rhs.x(), self.y() * rhs.y(), self.z() * rhs.z())
+    }
+}
+
+impl ops::Mul<Vector3> for &Vector3 {
+    type Output = Vector3;
+
+    fn mul(self, rhs: Vector3) -> Self::Output {
+        Vector3::new(self.x() * rhs.x(), self.y() * rhs.y(), self.z() * rhs.z())
     }
 }
 

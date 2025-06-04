@@ -1,21 +1,31 @@
+use std::sync::Arc;
+
 use crate::{
     hit::{HitRecord, Hittable},
     interval::Interval,
+    material::Material,
     ray::Ray,
     vec3::Point3,
 };
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Clone)]
 pub struct Sphere {
     center: Point3,
     radius: f32,
+
+    mat: Arc<dyn Material + Send + Sync + 'static>,
 }
 
 impl Sphere {
-    pub fn new(center: Point3, radius: f32) -> Self {
+    pub fn new(
+        center: Point3,
+        radius: f32,
+        mat: Arc<dyn Material + Send + Sync + 'static>,
+    ) -> Self {
         Self {
             center,
             radius: radius.max(0.),
+            mat,
         }
     }
 }
@@ -53,6 +63,7 @@ impl Hittable for Sphere {
             normal: n,
             t,
             front_face: false,
+            mat: self.mat.clone(),
         };
         rec.set_face_normal(r, &outward_normal);
 

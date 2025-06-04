@@ -2,17 +2,20 @@ use std::sync::Arc;
 
 use crate::{
     interval::Interval,
+    material::Material,
     ray::Ray,
     vec3::{Point3, Vector3},
 };
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Clone)]
 pub struct HitRecord {
     pub p: Point3,
     pub normal: Vector3,
     pub t: f32,
 
     pub front_face: bool,
+
+    pub mat: Arc<dyn Material + 'static>,
 }
 
 impl HitRecord {
@@ -32,15 +35,15 @@ pub trait Hittable {
 
 #[derive(Default, Clone)]
 pub struct HittableList {
-    pub objects: Vec<Arc<dyn Hittable>>,
+    pub objects: Vec<Arc<dyn Hittable + Send + Sync + 'static>>,
 }
 
 impl HittableList {
-    pub fn new(objects: Vec<Arc<dyn Hittable>>) -> Self {
+    pub fn new(objects: Vec<Arc<dyn Hittable + Send + Sync + 'static>>) -> Self {
         Self { objects }
     }
 
-    pub fn add(&mut self, object: Arc<dyn Hittable>) {
+    pub fn add(&mut self, object: Arc<dyn Hittable + Send + Sync + 'static>) {
         self.objects.push(object);
     }
 }
